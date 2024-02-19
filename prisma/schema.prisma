@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model DriveUser {
+  id       Int    @id @default(autoincrement())
+  userName String
+  fullName String
+  email    String @unique
+  password String
+  mobile   String @unique
+  // otp         String  @default("00000")
+  // otpVerified Boolean @default(false)
+}
+
+model File {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  fileName    String
+  mimeType    String
+  fileSize    String
+  lastUpdated DateTime
+}
