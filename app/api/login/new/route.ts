@@ -1,31 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from '@/lib/prisma'
+import { prisma } from "@/lib/prisma";
 
-export async function POST(req: NextRequest) {
-    const jsonReq = await req.json();
-    const user = await prisma.driveUser.findUnique({
-        where: {
-            email: jsonReq['email']
-        }
-    });
-
-    if (!user) {
-        var created = await prisma.driveUser.create({
-            data: jsonReq
+export async function POST(req: NextRequest, res: NextResponse) {
+    const jsonBody = await req.json();
+    try {
+        const user = await prisma.driveUser.create({
+            data: jsonBody
         });
-        if (created) {
-            return NextResponse.json({
-                "message": "User Created Successfuly ",
-                "data": created,
 
-            }, { status: 201 });
+        if (user) {
+            return NextResponse.json({
+                message: "User created succssfully",
+                data: user
+            });
         }
+        else {
+            return NextResponse.json({
+                message: "Something went wrong",
+            }, { status: 500 });
+        }
+    } catch (error) {
+        return NextResponse.json({
+            message: error,
+        }, { status: 401 });
     }
 
 
-
-    return NextResponse.json({
-        "message": "User alredy found",
-
-    }, { status: 401 });
 }
