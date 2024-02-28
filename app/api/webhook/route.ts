@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-// import {}
+import axios from 'axios';
+import { headers } from "next/headers";
 
 
 export async function GET(req: NextRequest) {
@@ -20,22 +21,35 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    const { searchParams } = new URL(req.url);
-    const jsonBody = await req.json();
+    try {
+        const { searchParams } = new URL(req.url);
+        const jsonBody = await req.json();
 
-    if (searchParams.get('verify_token') == "sharan@123" && jsonBody['object'] == 'whatsapp_business_account') {
-        let entry = jsonBody['entry'];
+        if (searchParams.get('verify_token') == "sharan@123" && jsonBody['field'] == 'messages') {
 
-        let _e = entry[0];
-        let changes = _e['changes'];
-        const change = changes[0];
-        if (change['field'] == 'messages') {
-            let waId = change['value']['contacts'][0]['wa_id'];
-            let profileName = change['value']['contacts'][0]['profile']['name'];
-            let messageId = change['value']['messages'][0]['id'];
-            let message = change['value']['messages'][0]['text']['body'];
+            let waId = jsonBody['value']['contacts'][0]['wa_id'];
+            let profileName = jsonBody['value']['contacts'][0]['profile']['name'];
+            let messageId = jsonBody['value']['messages'][0]['id'];
+            let message = jsonBody['value']['messages'][0]['text']['body'];
 
+            const url = 'https://graph.facebook.com/v18.0/116480298220877/messages';
+            const accessToken = 'EAAZCUOwGKlBMBO3N0cHjDz9JEhnzE0OcZB9nCPasALcoZBWArHsaYel8b0bTkGi8n4Vqa2Ss3gftDVX7YiuNzNpBurcX5m8LGiqnsSBH5tFVkpuWi9ZCSoDsCrMi6cnXaWUrjBuFGrZCqwiytr5uVC8GSAdQOHtg3zVbbZCIruRwZBsPwcGI2c6WDNh6y4Os7F3wSFNpslz1MmnkygZCjZCwZD';
 
+            const headers = {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            };
+
+            const data = {
+                messaging_product: 'whatsapp',
+                to: waId,
+                type: 'text',
+                text: {
+                    body: `Hi thanks for choosing drive manager ${profileName} .\r Stay connected`
+                }
+            };
+
+            const response = await axios.post(url, data, { headers });
 
             return NextResponse.json({
                 message: "Success",
@@ -43,16 +57,19 @@ export async function POST(req: NextRequest) {
                 data: {
                     contact_number: waId,
                     message: message,
-                }
+                },
+                response: response.data,
             });
+
         }
-
-
+        return NextResponse.json({
+            message: "Failed beacause of non whatsapp_business_account req",
+            params: searchParams.get('verify_token'),
+        });
+    } catch (error) {
+        return NextResponse.json({
+            message: error,
+        }, { status: 500 });
     }
 
-
-    return NextResponse.json({
-        message: "Failed beacause of non whatsapp_business_account req",
-        params: searchParams.get('verify_token'),
-    });
 }
