@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 // import {}
 
+
+export async function GET(req: NextRequest) {
+    const { searchParams } = new URL(req.url);
+    return NextResponse.json({
+        message: "Success",
+        params: searchParams.get('verify_token'),
+    });
+}
+
 export async function POST(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const jsonBody = await req.json();
