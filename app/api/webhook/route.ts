@@ -5,10 +5,19 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
-    return NextResponse.json({
-        message: "Success",
-        params: searchParams.get('verify_token'),
-    });
+    if (searchParams.get("mode") == "subscribe" && searchParams.get("verify_token") == 'sharan@123') {
+
+        return NextResponse.json({
+            message: "Success",
+            params: searchParams.get('verify_token'),
+        });
+    }
+    else {
+        return NextResponse.json({
+            message: "Failed",
+
+        }, { status: 401 });
+    }
 }
 
 export async function POST(req: NextRequest) {
