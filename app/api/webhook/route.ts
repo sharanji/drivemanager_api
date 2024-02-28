@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
             });
 
         }
-        console.log('Failed beacause of non whatsapp_business_account req');
+        console.log(jsonBody['field'] + 'Failed beacause of non whatsapp_business_account req');
 
         return NextResponse.json({
             message: "Failed beacause of non whatsapp_business_account req",
