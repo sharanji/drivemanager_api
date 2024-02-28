@@ -5,12 +5,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
-    if (searchParams.get("mode") == "subscribe" && searchParams.get("verify_token") == 'sharan@123') {
+    if (searchParams.get("hub.mode") == "subscribe" && searchParams.get("hub.verify_token") == 'sharan@123') {
 
-        return NextResponse.json({
-            message: "Success",
-            params: searchParams.get('verify_token'),
-        });
+        return new NextResponse(
+            searchParams.get('hub.challenge'),
+        );
     }
     else {
         return NextResponse.json({
