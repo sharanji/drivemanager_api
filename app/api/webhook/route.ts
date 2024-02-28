@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
         const { searchParams } = new URL(req.url);
         const jsonBody = await req.json();
 
-        if (searchParams.get('verify_token') == "sharan@123" && jsonBody['field'] == 'messages') {
+        if (jsonBody['field'] == 'messages') {
 
             let waId = jsonBody['value']['contacts'][0]['wa_id'];
             let profileName = jsonBody['value']['contacts'][0]['profile']['name'];
