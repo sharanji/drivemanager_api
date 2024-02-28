@@ -62,11 +62,14 @@ export async function POST(req: NextRequest) {
             });
 
         }
+        console.log('Failed beacause of non whatsapp_business_account req');
+
         return NextResponse.json({
             message: "Failed beacause of non whatsapp_business_account req",
             params: searchParams.get('verify_token'),
         });
     } catch (error) {
+        console.log(error);
         return NextResponse.json({
             message: error,
         }, { status: 500 });
