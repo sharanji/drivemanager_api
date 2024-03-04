@@ -25,7 +25,9 @@ model File {
   id          Int      @id @default(autoincrement())
   userId      Int
   fileName    String
+  fileId      String?  @default(uuid())
   mimeType    String
   fileSize    String
+  parentId    Int?     @default(0)
   lastUpdated DateTime
 }

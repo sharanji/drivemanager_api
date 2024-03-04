@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import fs from 'fs';
 import path from 'path';
+import { File } from "@prisma/client";
 
 
 
@@ -29,9 +30,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
         const fileBytes = jsonReq['fileBytes'];
         delete jsonReq['fileBytes'];
 
-        saveBase64Image(fileBytes, jsonReq['fileName'])
 
-        const createdFile = await prisma.file.create({ data: jsonReq });
+        const createdFile: File = await prisma.file.create({ data: jsonReq });
+        saveBase64Image(fileBytes, createdFile.fileId! + "." + createdFile.mimeType)
+
         if (!createdFile) {
             return NextResponse.json({
                 message: "Failed to create a file",
