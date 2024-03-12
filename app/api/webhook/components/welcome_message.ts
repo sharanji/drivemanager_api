@@ -9,11 +9,9 @@ export async function welcomeMessage(jsonBody: any) {
     let messageId = chanages['value']['messages'][0]['id'];
     let message = chanages['value']['messages'][0]['text']['body'];
 
-    const url = 'https://graph.facebook.com/v18.0/116480298220877/messages';
-    const accessToken = 'EAAZCUOwGKlBMBO3N0cHjDz9JEhnzE0OcZB9nCPasALcoZBWArHsaYel8b0bTkGi8n4Vqa2Ss3gftDVX7YiuNzNpBurcX5m8LGiqnsSBH5tFVkpuWi9ZCSoDsCrMi6cnXaWUrjBuFGrZCqwiytr5uVC8GSAdQOHtg3zVbbZCIruRwZBsPwcGI2c6WDNh6y4Os7F3wSFNpslz1MmnkygZCjZCwZD';
 
     const headers = {
-        'Authorization': `Bearer ${accessToken}`,
+        'Authorization': `Bearer ${process.env.accessToken}`,
         'Content-Type': 'application/json'
     };
 
@@ -26,7 +24,7 @@ export async function welcomeMessage(jsonBody: any) {
         }
     };
 
-    const response = await axios.post(url, data, { headers });
+    const response = await axios.post(process.env.WAURL!, data, { headers });
 
     return NextResponse.json({
         message: "Success",
