@@ -2,12 +2,12 @@ import axios from "axios";
 import { NextResponse } from "next/server";
 
 export async function welcomeMessage(jsonBody: any) {
-    let chanages = jsonBody['entry'][0]['changes'][0];
+    let value = jsonBody['value'];
 
-    let waId = chanages['value']['contacts'][0]['wa_id'];
-    let profileName = chanages['value']['contacts'][0]['profile']['name'];
-    let messageId = chanages['value']['messages'][0]['id'];
-    let message = chanages['value']['messages'][0]['text']['body'];
+    let waId = value['contacts'][0]['wa_id'];
+    let profileName = value['contacts'][0]['profile']['name'];
+    let messageId = value['messages'][0]['id'];
+    let message = value['messages'][0]['text']['body'];
 
 
     const headers = {

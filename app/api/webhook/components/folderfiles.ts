@@ -9,11 +9,14 @@ export async function getFolderFiles({ user, folderName, jsonBody }: { user: Dri
         var data;
 
 
-        let chanages = jsonBody['entry'][0]['changes'][0];
-        let waId = chanages['value']['contacts'][0]['wa_id'];
-        let profileName = chanages['value']['contacts'][0]['profile']['name'];
-        let messageId = chanages['value']['messages'][0]['id'];
-        let message = chanages['value']['messages'][0]['text']['body'];
+        let value = jsonBody['value'];
+
+        let waId = value['contacts'][0]['wa_id'];
+        let profileName = value['contacts'][0]['profile']['name'];
+        let messageId = value['messages'][0]['id'];
+        let message = value['messages'][0]['text']['body'];
+
+
         let sections: any = [];
 
         const headers = {
@@ -32,16 +35,39 @@ export async function getFolderFiles({ user, folderName, jsonBody }: { user: Dri
                 }
             );
 
+            if (result.length == 0) {
+                data = {
+                    messaging_product: 'whatsapp',
+                    to: waId,
+                    type: 'text',
+                    text: {
+                        body: `Hi thanks for choosing drive manager ${profileName} .\r No files Found in the folder`
+                    }
+                };
+                await axios.post(process.env.WAURL!, JSON.stringify(data), { headers });
+                return NextResponse.json({ 'message': "no sub files found" });
+            }
+
             result.forEach(file => {
+                // sections.push({
+                //     "title": file.mimeType,
+                //     "rows": [
+                //         {
+                //             "id": file.fileId,
+                //             "title": file.fileName,
+                //             "description": `Last Updated : ${file.lastUpdated}`,
+                //         }
+                //     ]
+                // });
                 sections.push({
                     "title": file.mimeType,
                     "rows": [
                         {
-                            "id": file.id.toString(),
+                            "id": file.fileId,
                             "title": "/" + file.fileName,
                         }
                     ]
-                })
+                });
             });
 
             data = {
@@ -67,7 +93,7 @@ export async function getFolderFiles({ user, folderName, jsonBody }: { user: Dri
                     }
                 }
             };
-
+            await axios.post(process.env.WAURL!, JSON.stringify(data), { headers });
             return NextResponse.json(data);
         }
         else {
@@ -95,9 +121,9 @@ export async function getFolderFiles({ user, folderName, jsonBody }: { user: Dri
                     "to": waId,
                     "type": "document",
                     "document": {
-                        // "link": "http://172.20.10.4:3000/uploads/files/" + folderData.fileId + "." + folderData.mimeType
+                        "link": "https://drivemanager-api.vercel.app/uploads/files/" + folderData.fileId + "." + folderData.mimeType
                         // "link": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-                        "link": "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress"
+                        // "link": "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress"
                     },
                 }
                 await axios.post(process.env.WAURL!, JSON.stringify(mediaData), { headers });

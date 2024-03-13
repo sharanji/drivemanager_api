@@ -25,10 +25,14 @@ export async function POST(req: NextRequest) {
         const { searchParams } = new URL(req.url);
         const jsonBody = await req.json();
 
-        if (jsonBody['object'] == 'whatsapp_business_account') {
-            let message: string = jsonBody['entry'][0]['changes'][0]['value']['messages'][0]['text']['body'];
-            let chanages = jsonBody['entry'][0]['changes'][0];
-            let waId = chanages['value']['contacts'][0]['wa_id'];
+        if (jsonBody['field'] == 'messages') {
+            let value = jsonBody['value'];
+
+            let waId = value['contacts'][0]['wa_id'];
+            let profileName = value['contacts'][0]['profile']['name'];
+            let messageId = value['messages'][0]['id'];
+            let message = value['messages'][0]['text']['body'];
+
 
             // find userId
             var user = await prisma.driveUser.findFirst(

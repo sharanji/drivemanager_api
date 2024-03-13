@@ -27,6 +27,7 @@ export async function GET(req: NextRequest, { params }: { params: any }) {
 
 export async function DELETE(req: NextRequest, { params }: { params: any }) {
     let userid: any = params.query[0];
+    var res;
 
     if (userid == null || !Number.parseInt(userid)) {
         return NextResponse.json({
@@ -42,15 +43,23 @@ export async function DELETE(req: NextRequest, { params }: { params: any }) {
         }
     })
 
+
+    await prisma.file.deleteMany({
+        where: {
+            userId: Number.parseInt(userid),
+            parentId: params.query[1] != null ? Number.parseInt(params.query[1]) : 0
+        }
+    })
+
+
+
     if (file && file.mimeType == 'folder') {
-        await prisma.file.deleteMany({
+        res = await prisma.file.deleteMany({
             where: {
                 userId: Number.parseInt(userid),
                 parentId: params.query[1] != null ? Number.parseInt(params.query[1]) : 0
             }
         });
-
-
     }
 
     await prisma.file.deleteMany({
@@ -64,5 +73,7 @@ export async function DELETE(req: NextRequest, { params }: { params: any }) {
 
     return NextResponse.json({
         message: "Success",
+        res: res,
+        file: file
     });
 }
