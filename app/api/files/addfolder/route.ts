@@ -10,10 +10,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
         {
             where: {
                 fileName: jsonReq['name'],
-                parentId: jsonReq['parent']
+                userId: Number.parseInt(jsonReq['userId']),
+                parentId: Number.parseInt(jsonReq['parent'])
             }
         }
     )
+
+    if (exsist.length > 0)
+        return NextResponse.json({ message: "Folder Name alredy exist", files: exsist }, { status: 401 });
+
 
     const createdFile = await prisma.file.create(
         {
@@ -22,8 +27,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
                 mimeType: 'folder',
                 fileSize: '0',
                 lastUpdated: new Date(),
-                userId: jsonReq['userId'],
-                parentId: jsonReq['parent']
+                userId: Number.parseInt(jsonReq['userId']),
+                parentId: Number.parseInt(jsonReq['parent'])
             }
         }
     );

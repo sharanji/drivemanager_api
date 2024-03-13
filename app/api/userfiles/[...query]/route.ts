@@ -24,3 +24,45 @@ export async function GET(req: NextRequest, { params }: { params: any }) {
         files: userFiles,
     });
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: any }) {
+    let userid: any = params.query[0];
+
+    if (userid == null || !Number.parseInt(userid)) {
+        return NextResponse.json({
+            message: "No user Id found in url",
+            userId: userid
+        }, { status: 404 });
+    }
+
+    var file = await prisma.file.findFirst({
+        where: {
+            userId: Number.parseInt(userid),
+            parentId: params.query[1] != null ? Number.parseInt(params.query[1]) : 0
+        }
+    })
+
+    if (file && file.mimeType == 'folder') {
+        await prisma.file.deleteMany({
+            where: {
+                userId: Number.parseInt(userid),
+                parentId: params.query[1] != null ? Number.parseInt(params.query[1]) : 0
+            }
+        });
+
+
+    }
+
+    await prisma.file.deleteMany({
+        where: {
+            userId: Number.parseInt(userid),
+            id: params.query[1] != null ? Number.parseInt(params.query[1]) : 0
+        }
+    });
+
+
+
+    return NextResponse.json({
+        message: "Success",
+    });
+}

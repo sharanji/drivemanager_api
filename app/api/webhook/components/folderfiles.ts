@@ -37,12 +37,11 @@ export async function getFolderFiles({ user, folderName, jsonBody }: { user: Dri
                     "title": file.mimeType,
                     "rows": [
                         {
-                            "id": file.id,
-                            "title": file.fileName,
-                            "description": `Last Updated : ${file.lastUpdated}`,
+                            "id": file.id.toString(),
+                            "title": "/" + file.fileName,
                         }
                     ]
-                });
+                })
             });
 
             data = {
@@ -69,6 +68,7 @@ export async function getFolderFiles({ user, folderName, jsonBody }: { user: Dri
                 }
             };
 
+            return NextResponse.json(data);
         }
         else {
             var folderData = await prisma.file.findFirst(
@@ -87,6 +87,23 @@ export async function getFolderFiles({ user, folderName, jsonBody }: { user: Dri
                 });
             }
 
+
+            if (folderData.mimeType != 'folder') {
+                var mediaData = {
+                    'messaging_product': 'whatsapp',
+                    "recipient_type": "individual",
+                    "to": waId,
+                    "type": "document",
+                    "document": {
+                        // "link": "http://172.20.10.4:3000/uploads/files/" + folderData.fileId + "." + folderData.mimeType
+                        // "link": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+                        "link": "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress"
+                    },
+                }
+                await axios.post(process.env.WAURL!, JSON.stringify(mediaData), { headers });
+                return NextResponse.json({ 'message': "file send", file: mediaData });
+            }
+
             result = await prisma.file.findMany(
                 {
                     where: {
@@ -96,6 +113,19 @@ export async function getFolderFiles({ user, folderName, jsonBody }: { user: Dri
                 }
             );
 
+
+            if (result.length == 0) {
+                data = {
+                    messaging_product: 'whatsapp',
+                    to: waId,
+                    type: 'text',
+                    text: {
+                        body: `Hi thanks for choosing drive manager ${profileName} .\r No files Found in the folder`
+                    }
+                };
+                await axios.post(process.env.WAURL!, JSON.stringify(data), { headers });
+                return NextResponse.json({ 'message': "no sub files found" });
+            }
 
             result.forEach(file => {
                 sections.push({
@@ -139,7 +169,7 @@ export async function getFolderFiles({ user, folderName, jsonBody }: { user: Dri
         }
 
 
-        await axios.post(process.env.WAURL!, data, { headers });
+        await axios.post(process.env.WAURL!, JSON.stringify(data), { headers });
         return NextResponse.json(result);
     } catch (error) {
         return NextResponse.json({
