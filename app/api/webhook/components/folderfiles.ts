@@ -64,7 +64,7 @@ export async function getFolderFiles({ user, folderName, jsonBody }: { user: Dri
                     "rows": [
                         {
                             "id": file.fileId,
-                            "title": "/" + file.fileName,
+                            "title": "/" + (file.fileName.length > 10 ? file.fileName.substring(0, 8) : file.fileName),
                         }
                     ]
                 });
